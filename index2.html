@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Punch List</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        .clickable{
+            cursor: pointer
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container">
+        <h1>{{ heading }}</h1>
+        <!-- Directive: anything that Vue binds to the DOM(mustaches, v-model, v-for, etc.) -->
+
+        <div class="input-group" v-for="(punch, index) of punches">
+            <div class="input-group-prepend">
+              <div class="input-group-text">
+                <input type="checkbox" :value="punch" v-model="checkedPunches">
+              </div>
+              <div class="input-group-prepend">
+                <input type="text" class="form-control" v-model="punch.pts">
+              </div>
+            </div>
+            <input type="text" class="form-control" v-model="punch.text">
+            <div class="input-group-append">
+              <span @click="deletePunch(index)" class="input-group-text clickable">X</span>
+            </div>
+        </div>
+
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <div class="input-group-text">
+                <input type="checkbox">
+              </div>
+              <div class="input-group-prepend">
+                <input type="text" class="form-control" id="addPts">
+              </div>
+            </div>
+            <input type="text" class="form-control" id="addText" @keydown.enter="addPunch()">
+            <div class="input-group-append">
+              <span @click="addPunch()"  class="input-group-text clickable">+</span>
+            </div>
+        </div>
+
+
+        <!-- <table class="table mt-4" > 
+            <tr v-for="(punch, index) of punches">
+                <td><input type="checkbox"></td>
+                <td>{{punch}}</td>
+                <td>{{punch.pts}}</td>
+                <td><input type="text" :value="punch.text"></input></td>
+                <td @click="deletePunch(index)" class="clickable">X</td>
+            </tr>
+            <tr>
+                <td @click="addPunch()" class="clickable">+</td>
+                <td><input type="text"  @keydown.enter="addPunch()" id="addText"></td>
+                <td></td>
+            </tr>       
+        </table> -->
+        <span>Display Area</span>
+        <ul v-for="punch of checkedPunches">
+            <li>{{punch.pts}} -- {{punch.text}}</li>
+        </ul>
+    
+    </div> <!-- end container -->
+
+    <!-- TODO:
+        favicon
+        must total up points
+
+    -->
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data:{
+                heading: 'DiskHog',
+                punches:[
+                    {pts: 0, text:'Parse CLAs'},
+                    {pts: 0, text:'Display Subfolder'},
+                    {pts: 0, text:'Sum up bytes on disk'},
+                    {pts: 0, text:'load icons'}
+                ],
+                checkedPunches:[
+
+                ],
+            
+            },
+            methods: {
+                addPunch: function(){
+                    //if value is blank, it wont add
+                    if (document.getElementById('addText').value != ''){
+                        // Get values for points and text
+                        let text = document.getElementById('addText').value
+                        let pts = document.getElementById('addPts').value
+                        //add value in <textbox> input as a new requirement to list
+                        this.punches.push({pts, text})
+                        //"this" refers to app.data
+                        document.getElementById('addText').value = ''
+                        document.getElementById('addPts').value = ''
+
+                    }
+                },
+                deletePunch: function(i){
+                    //Get index of array element
+                        // const index = this.requirements.indexOf(text)
+                    //Remove element from array, and therefore the list.
+                    let j = this.checkedPunches.indexOf(this.punches[i])
+                    if (j != -1) this.checkedPunches.splice(j,1)
+                    this.punches.splice(i,1)
+
+                }
+            }
+        })
+
+        // setTimeout(()=>{app.heading='Dog Face'}, 5000)
+        // setTimeout(()=>{app.heading='Cat Face'}, 10000)
+
+    </script>
+</body>
+</html>

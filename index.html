@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Punch List | Web III</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        .clickable{
+            cursor: pointer
+        }
+        .greenify{
+            color:rgb(22, 255, 22);
+            font-family: monospace;
+        }
+        li{
+            list-style-type: none;
+        }
+    </style>
+</head>
+<body class="bg-dark">
+    <div id="app" class="container">
+        <div class="row">
+            <div class="col">
+            </div><!--END Col-->
+            <div class="col">
+            </div><!--END Col-->
+        </div><!--END Row-->
+
+        <!-- Directive: anything that Vue binds to the DOM(mustaches, v-model, v-for, v-bind, etc.) -->
+        <div class="row mt-5 pt-5">
+            <div class="col-xl-7 ">
+                <!-- <p>Computed total {{pointTotal}}</p> -->
+                <h1 class="greenify mb-3">{{ heading }}</h1>
+
+                <punch :item="punch" v-for="(punch, index) of punches" @deleteclick="deletePunch(index)"></punch>
+            
+                <div class="input-group mb-4">
+                    <div class="input-group-prepend">
+                      <div class="input-group-text">
+                        <input type="checkbox">
+                      </div>
+                      <div class="input-group-prepend">
+                        <input type="text" class="form-control" id="addPts" @keydown.enter="addPunch()" placeholder="add point value..." v-model="addPts">
+                      </div>
+                    </div>
+                    <input type="text" class="form-control" id="addText" @keydown.enter="addPunch()" placeholder="add task here..." v-model="addText">
+                    <div class="input-group-append">
+                      <button type="button" class="btn btn-success" :disabled="isEitherFieldBlank" @click="addPunch()" title="Add this task">+</button>
+                      <!-- <span @click="addPunch()" class="input-group-text clickable" style="background-color: rgb(121, 202, 0); color:white">+</span> -->
+                    </div>
+                </div>
+            </div> <!--END Col-->
+
+            <div class="col-xl-1"></div>
+
+            <div class="col-xl-4">
+                <h1 class="mb-3 greenify">{{ list }}</h1>
+                <div class="bg-light border-primary rounded">
+                    <p v-for="punch of checkedPunches">
+                        <span>&nbsp;{{punch.pts}} --- {{punch.text}}</span>
+                    </p>
+                </div>
+            </div><!--END Col-->
+        </div> <!--END Row-->
+
+        
+    </div> <!--END Container-->
+ 
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>
+        Vue.component('punch', {
+            props: ['item'],
+            data: function (){
+                return{
+                    
+                }
+            },
+            methods: {
+                
+                deletetask(){
+                    this.$emit('deleteclick')
+                }
+
+            },
+            watch:{
+            }
+
+            ,
+            template:
+                `
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                    <div class="input-group-text">
+                        <input type="checkbox" :value="item" v-model="item.checked" class="clickable">
+                    </div>
+                    <div class="input-group-prepend">
+                        <input type="text" class="form-control" v-model="item.pts">
+                    </div>
+                    </div>
+                    <input type="text" class="form-control" v-model="item.text">
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-danger" @click="deletetask" title="Delete this task">X</button>
+                    </div>
+                </div>
+                `
+            
+        })
+
+        var app = new Vue({
+            el: '#app',
+            data:{
+                heading: '>My Punch List',
+                list: '>Checked Punches',
+                punches:[
+                    {pts: 10, text:'Parse CLAs'},
+                    {pts: 25, text:'Display Subfolder'},
+                    {pts: 20, text:'Sum up bytes on disk'},
+                    {pts: 12, text:'load icons'}
+                ],
+
+                addPts: '',
+                addText: '',
+                checked: '',
+            
+            },
+            methods: {
+                addPunch: function(){
+                    //if value is blank, it wont add
+                    // if (document.getElementById('addText').value != '' && document.getElementById('addPts').value != ''){
+                    if(!this.isEitherFieldBlank){
+                        // this.addPts / this.addText are binded through v-models in form submit
+                        this.punches.push({pts: this.addPts, text: this.addText})
+                        //"this" refers to app.data
+                        // new punch is added, clear all values for next punch
+                        this.addPts = ''
+                        this.addText = ''
+                    }
+                },
+                deletePunch: function(i){
+                    //Remove element from array, and therefore the list.
+                    // What is j ??
+                    let j = this.checkedPunches.indexOf(this.punches[i])
+                    if (j != -1) this.checkedPunches.splice(j,1)
+                    this.punches.splice(i,1)
+                },
+            },
+            computed: {
+                isEitherFieldBlank: function(){
+                    return this.addText==='' || this.addPts===''
+                },
+                pointTotal: function(){
+                    let total = 0
+                    for (let punch of this.punches){
+                        total += Number(punch.pts)
+                    }
+                    return total
+                },
+                checkedPunches() {
+                    return this.punches.filter((punch) => punch.checked);
+                }
+            }
+        })
+
+    </script>
+</body>
+</html>
+<!-- Graveyard 
+
+// setTimeout(()=>{app.heading='Dog Face'}, 5000)
+// setTimeout(()=>{app.heading='Cat Face'}, 10000)
+
+============================================================
+Initial table to render
+
+<table class="table mt-4" > 
+    <tr v-for="(punch, index) of punches">
+        <td><input type="checkbox"></td>
+        <td>{{punch}}</td>
+        <td>{{punch.pts}}</td>
+        <td><input type="text" :value="punch.text"></input></td>
+        <td @click="deletePunch(index)" class="clickable">X</td>
+    </tr>
+    <tr>
+        <td @click="addPunch()" class="clickable">+</td>
+        <td><input type="text"  @keydown.enter="addPunch()" id="addText"></td>
+        <td></td>
+    </tr>
+</table>
+
+<p>total points: {{pointTotal}}</p>
+
+=============================================================
+Div for rendering list of punches
+
+<div class="input-group" v-for="(punch, index) of punches">
+    <div class="input-group-prepend">
+      <div class="input-group-text">
+        :value assigns the checkbox value with the current punch in the list
+        <input type="checkbox" :value="punch" v-model="checkedPunches" class="clickable">
+      </div>
+      <div class="input-group-prepend">
+        <input type="text" class="form-control" v-model="punch.pts">
+      </div>
+    </div>
+    <input type="text" class="form-control" v-model="punch.text">
+    <div class="input-group-append">
+        <button type="button" class="btn btn-danger" @click="deletePunch(index)" title="Delete this task ">X</button>
+      <span @click="deletePunch(index)" class="input-group-text clickable" style="background-color: red; color:white">X</span>
+    </div>
+</div>
+
+-->
